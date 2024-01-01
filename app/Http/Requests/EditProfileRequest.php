@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class RegisterRequest extends FormRequest
+class EditProfileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,12 +23,10 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nama' => ['required', 'string'],
-            'email' => ['required', 'email', 'unique:users,email,except,id'],
-            'hp' => ['required', 'unique:users,hp,except,id', 'numeric', 'digits_between:10,14'],
-            'alamat' => ['required', 'string'],
-            'password' => ['required', 'min:8'],
-            'konfirmasi_password' => ['same:password'],
+            'nama' => ['required'],
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($this->user())],
+            'hp' => ['required', 'numeric', 'digits_between:10,14', Rule::unique('users', 'hp')->ignore($this->user())],
+            'alamat' => ['required', 'string']
         ];
     }
 }

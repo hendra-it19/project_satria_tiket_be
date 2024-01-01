@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EditProfileRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
@@ -112,8 +113,29 @@ class AuthController extends Controller
         }
     }
 
-    public function editProfile() : JsonResponse
+    public function editProfile(EditProfileRequest $request): JsonResponse
     {
-        
+        try {
+            $user = User::findOrFail($request->user()->id);
+            $data = $user->update([
+                'nama' => $request->nama,
+                'email' => $request->email,
+                'hp' => $request->hp,
+                'alamat' => $request->alamat
+            ]);
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'errors' => null,
+                'message' => 'Profile pengguna berhasil diubah!',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'data' => null,
+                'errors' => $e->getMessage(),
+                'message' => 'Terdapat kesalahan pada Api/AuthController.editProfile!',
+            ], 500);
+        }
     }
 }
