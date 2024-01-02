@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('kapasitas_penumpang');
             $table->integer('panjang_kapal');
             $table->integer('lebar_kapal');
-            $table->integer('tahun_produksi');
+            $table->year('tahun_produksi');
             $table->timestamps();
         });
     }

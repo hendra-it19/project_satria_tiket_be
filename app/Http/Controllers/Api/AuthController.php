@@ -18,7 +18,9 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         try {
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)
+                ->where('role', 'pengguna')
+                ->first();
             if (!empty($user) && Hash::check($request->password, $user->password)) {
                 $token = $user->createToken('token');
                 return response()->json([
@@ -116,7 +118,7 @@ class AuthController extends Controller
     public function editProfile(EditProfileRequest $request): JsonResponse
     {
         try {
-            $user = User::findOrFail($request->user()->id);
+            $user = $request->user();
             $data = $user->update([
                 'nama' => $request->nama,
                 'email' => $request->email,
