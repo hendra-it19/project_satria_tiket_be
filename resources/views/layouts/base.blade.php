@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="utf-8">
@@ -9,7 +9,7 @@
     <meta content="dashboard admin untuk mengontrol transaksi penjualan tiket kapal" name="description">
 
     <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <link href="{{ asset('logo.png') }}" rel="icon">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,6 +29,9 @@
 
     <!-- Template Stylesheet -->
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ asset('assets/datatables/datatables.min.css') }}">
+    <script src="{{ asset('assets/datatables/datatables.min.js') }}"></script>
 </head>
 
 <body>
@@ -66,7 +69,7 @@
     </div>
 
     <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    {{-- <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('assets/lib/chart/chart.min.js') }}"></script>
     <script src="{{ asset('assets/lib/easing/easing.min.js') }}"></script>
@@ -78,6 +81,48 @@
 
     <!-- Template Javascript -->
     <script src="{{ asset('assets/js/main.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $.extend($.fn.dataTable.defaults, {
+                searching: true,
+                ordering: true
+            });
+            $('#table').DataTable({
+                dom: 'Bfrtip',
+                buttons: [{
+                        extend: 'colvis',
+                        className: 'btn-sm btn-primary',
+                    },
+                    {
+                        extend: 'csv',
+                        className: 'btn-sm btn-primary',
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+
+                    },
+                    {
+                        extend: 'excel',
+                        className: 'btn-sm btn-primary',
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        className: 'btn-sm btn-primary',
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    }
+                ],
+                initComplete: function() {
+                    var btns = $('.btn-secondary');
+                    btns.removeClass('btn-secondary');
+                },
+            });
+        });
+    </script>
 </body>
 
 </html>

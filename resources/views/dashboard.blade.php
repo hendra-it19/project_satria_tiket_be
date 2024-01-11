@@ -1,7 +1,7 @@
 @extends('layouts.base')
 
 @section('pages')
-    <div class="row bg-light rounded">
+    <div class="row rounded">
         <h1>Hai</h1>
     </div>
 @endsection

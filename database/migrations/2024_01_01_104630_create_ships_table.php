@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('ships', function (Blueprint $table) {
             $table->id();
             $table->string('nama_kapal', 100);
-            $table->integer('harga_tiket');
             $table->integer('kapasitas_penumpang');
             $table->integer('panjang_kapal');
             $table->integer('lebar_kapal');

@@ -13,9 +13,4 @@ class Schedule extends Model
     protected $table = 'schedules';
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
-
-    public function ship(): BelongsTo
-    {
-        return $this->belongsTo(Ship::class, 'ship_id', 'id');
-    }
 }

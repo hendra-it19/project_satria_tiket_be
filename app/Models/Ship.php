@@ -14,13 +14,8 @@ class Ship extends Model
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
-    public function transactions(): HasMany
+    public function tickets(): HasMany
     {
-        return $this->hasMany(Transaction::class, 'ship_id', 'id');
-    }
-
-    public function schedules(): HasMany
-    {
-        return $this->hasMany(Schedule::class, 'ship_id', 'id');
+        return $this->hasMany(Ticket::class, 'ship_id', 'id');
     }
 }

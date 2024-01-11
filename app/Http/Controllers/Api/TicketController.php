@@ -3,32 +3,32 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ScheduleCollection;
-use App\Http\Resources\ScheduleResource;
-use App\Models\Schedule;
+use App\Http\Resources\TicketResource;
+use App\Models\Ticket;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class ScheduleController extends Controller
+class TicketController extends Controller
 {
     public function list(): JsonResponse
     {
         try {
-            $data = ScheduleResource::collection(Schedule::latest('updated_at')->get());
+            $data = TicketResource::collection(Ticket::whereDate('keberangkatan', Carbon::now())->paginate(5));
             return response()->json([
                 'status' => true,
                 'data' => $data,
                 'errors' => null,
-                'message' => 'Daftar jadwal berhasil ditampilkan!',
+                'message' => 'Data tiket hari ini berhasil di tampilkan',
             ]);
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'data' => null,
                 'errors' => $e->getMessage(),
-                'messaage' => 'Terdapat kesalahan pada Api/ScheduleController.list',
-            ], 500);
+                'message' => 'Terdapat kesalahan pada Api/TicketController.list'
+            ]);
         }
     }
 }

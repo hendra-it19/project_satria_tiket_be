@@ -3,16 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Models\Schedule;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+
 
 class ScheduleController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+
+    private $judulHalaman = 'Jadwal';
+    private $hari =  [
+        'senin',
+        'selasa',
+        'rabu',
+        'kamis',
+        'jumat',
+        'sabtu',
+        'minggu'
+    ];
+    private $tujuan = [
+        'wanci-lasalimu',
+        'lasalimu-wanci',
+    ];
+
+
+    public function index(): View
     {
-        //
+        $judulHalaman = $this->judulHalaman;
+        $data = Schedule::orderBy('id', 'DESC')->get();
+        $no = 1;
+        return view('schedules.index', compact('data', 'judulHalaman', 'no'));
     }
 
     /**
@@ -20,7 +42,11 @@ class ScheduleController extends Controller
      */
     public function create()
     {
-        //
+        $hari = $this->hari;
+        $judulHalaman = $this->judulHalaman;
+        $tujuan = $this->tujuan;
+
+        return view('schedules.create', compact('hari', 'judulHalaman', 'tujuan'));
     }
 
     /**
@@ -28,7 +54,18 @@ class ScheduleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'hari_keberangkatan' => ['required', 'in:senin,selasa,rabu,kamis,jumat,sabtu,minggu'],
+            'jam_keberangkatan' => ['required'],
+            'tujuan' => ['required', 'in:lasalimu-wanci,wanci-lasalimu'],
+        ]);
+        Schedule::create([
+            'hari_keberangkatan' => $request->hari_keberangkatan,
+            'jam_keberangkatan' => $request->jam_keberangkatan,
+            'tujuan' => $request->tujuan,
+        ]);
+        return redirect()->route('schedules.index')
+            ->with('success', 'Data jadwal kapal berhasil ditambahkan!');
     }
 
     /**
@@ -44,7 +81,10 @@ class ScheduleController extends Controller
      */
     public function edit(Schedule $schedule)
     {
-        //
+        $judulHalaman = $this->judulHalaman;
+        $hari = $this->hari;
+        $tujuan = $this->tujuan;
+        return view('schedules.update', compact('judulHalaman', 'hari', 'tujuan', 'schedule'));
     }
 
     /**
@@ -52,7 +92,18 @@ class ScheduleController extends Controller
      */
     public function update(Request $request, Schedule $schedule)
     {
-        //
+        $request->validate([
+            'hari_keberangkatan' => ['required', 'in:senin,selasa,rabu,kamis,jumat,sabtu,minggu'],
+            'jam_keberangkatan' => ['required'],
+            'tujuan' => ['required', 'in:lasalimu-wanci,wanci-lasalimu'],
+        ]);
+        $schedule->update([
+            'hari_keberangkatan' => $request->hari_keberangkatan,
+            'jam_keberangkatan' => $request->jam_keberangkatan,
+            'tujuan' => $request->tujuan,
+        ]);
+        return redirect()->route('schedules.index')
+            ->with('success', 'Data jadwal kapal berhasil diperbarui!');
     }
 
     /**
@@ -60,6 +111,8 @@ class ScheduleController extends Controller
      */
     public function destroy(Schedule $schedule)
     {
-        //
+        $schedule->delete();
+        return redirect()->back()
+            ->with('success', 'Data jadwal kapal berhasil dihapus!');
     }
 }

@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transactions', function (Blueprint $table) {
+        Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->references('id')->on('users');
             $table->foreignId('ship_id')->references('id')->on('ships');
-            $table->integer('jumlah');
-            $table->float('harga');
-            $table->float('total_harga');
-            $table->enum('status', ['pending', 'selesai', 'batal']);
+            $table->integer('sisa_stok');
+            $table->integer('stok');
+            $table->integer('harga');
+            $table->enum('tujuan', ['lasalimu-wanci', 'wanci-lasalimu']);
+            $table->dateTime('keberangkatan')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('tickets');
     }
 };

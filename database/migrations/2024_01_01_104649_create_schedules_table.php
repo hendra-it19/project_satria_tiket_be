@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ship_id')->references('id')->on('ships');
             $table->enum('hari_keberangkatan', ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu']);
             $table->time('jam_keberangkatan');
+            $table->enum('tujuan', ['lasalimu-wanci', 'wanci-lasalimu']);
             $table->timestamps();
         });
     }
