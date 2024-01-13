@@ -68,7 +68,10 @@
                                 </div>
                             @enderror
                         </div>
-                        
+
+                        <input type="hidden" name="role" value="admin">
+
+
                         <button type="submit" class="btn btn-primary py-2 w-100 mb-4 mt-3">Daftar</button>
                     </form>
                     <p class="text-center mb-0">Sudah punya akun? <a href="{{ route('login') }}">Masuk</a></p>

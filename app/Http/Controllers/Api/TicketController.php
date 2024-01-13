@@ -16,7 +16,10 @@ class TicketController extends Controller
     public function list(): JsonResponse
     {
         try {
-            $data = new TicketCollection(Ticket::whereDate('keberangkatan', Carbon::now())->get());
+            $data = Ticket::whereDate('keberangkatan', Carbon::now())
+                ->whereTime('keberangkatan', '>=', Carbon::now())
+                ->get();
+            $data = new TicketCollection($data);
             return response()->json([
                 'status' => true,
                 'data' => $data,
@@ -29,6 +32,30 @@ class TicketController extends Controller
                 'data' => null,
                 'errors' => $e->getMessage(),
                 'message' => 'Terdapat kesalahan pada Api/TicketController.list'
+            ], 500);
+        }
+    }
+
+    public function filterDestination($destination): JsonResponse
+    {
+        try {
+            $data = Ticket::where('tujuan', $destination)
+                ->whereDate('keberangkatan', '>=', Carbon::now())
+                ->whereTime('keberangkatan', '>=', Carbon::now())
+                ->get();
+            $data = new TicketCollection($data);
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'errors' => null,
+                'message' => 'Data tiket hari ini berhasil di tampilkan',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'data' => null,
+                'errors' => $e->getMessage(),
+                'message' => 'Terdapat kesalahan pada Api/TicketController.filterDestination'
             ], 500);
         }
     }

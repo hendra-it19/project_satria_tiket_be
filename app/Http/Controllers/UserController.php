@@ -14,7 +14,7 @@ class UserController extends Controller
      */
 
     private $judulHalaman = 'Akun';
-    private $role = ['admin', 'pengguna'];
+    private $role = ['pengguna', 'admin'];
 
     public function index()
     {
@@ -39,7 +39,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // return $request->role;
+        // return $request->all();
         $request->validate([
             'nama' => ['required'],
             'email' => ['required', 'email', 'unique:users,email,except,id'],

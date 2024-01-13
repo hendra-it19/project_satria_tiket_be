@@ -22,6 +22,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/schedule', [ScheduleController::class, 'list']);
 Route::get('/ticket', [TicketController::class, 'list']);
+Route::get('/ticket/{destination}', [TicketController::class, 'filterDestination']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);

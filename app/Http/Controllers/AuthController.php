@@ -50,17 +50,19 @@ class AuthController extends Controller
 
     public function registerPost(Request $request)
     {
+        // return $request->all();
         $request->validate([
             'nama' => ['required'],
             'email' => ['required', 'email', 'unique:users,email,except,id'],
             'password' => ['required', 'min:8', 'string'],
             'konfirmasi_password' => ['same:password'],
+            'role' => ['required', 'in:admin'],
         ]);
         User::create([
             'nama' => $request->nama,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => "admin",
+            'role' => $request->role,
         ]);
         return redirect()->route('login')->with('success_register', 'Akun anda berhasil terdaftar, silahkan login!');
     }
