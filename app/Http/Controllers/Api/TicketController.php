@@ -59,4 +59,25 @@ class TicketController extends Controller
             ], 500);
         }
     }
+
+    public function detail($id): JsonResponse
+    {
+        try {
+            $data = Ticket::findOrFail($id);
+            $data = new TicketResource($data);
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'errors' => null,
+                'message' => 'Data detail tiket berhasil di tampilkan',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'data' => null,
+                'errors' => $e->getMessage(),
+                'message' => 'Terdapat kesalahan pada Api/TicketController.detail'
+            ], 500);
+        }
+    }
 }
