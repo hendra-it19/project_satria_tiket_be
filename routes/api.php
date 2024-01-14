@@ -29,6 +29,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile', [AuthController::class, 'editProfile']);
     Route::get('/profile', [AuthController::class, 'profile']);
 
+    Route::post('/transaction', [TransactionController::class, 'transaction']);
+    Route::get('/transaction', [TransactionController::class, 'transactionList']);
+    Route::get('/transaction/{status}', [TransactionController::class, 'listByStatus']);
 
-    Route::get('/history', [TransactionController::class, 'history']);
+    Route::post('/payment', [TransactionController::class, 'payment']);
 });

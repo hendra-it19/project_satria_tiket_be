@@ -19,7 +19,8 @@ return new class extends Migration
             $table->integer('jumlah');
             $table->float('harga');
             $table->float('total_harga');
-            $table->enum('status', ['pending', 'proses', 'selesai', 'batal']);
+            $table->enum('status', ['pending', 'proses', 'selesai'])->default('pending');
+            $table->string('snap_token')->nullable();
             $table->timestamps();
         });
     }

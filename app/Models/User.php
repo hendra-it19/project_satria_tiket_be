@@ -27,7 +27,8 @@ class User extends Authenticatable
         'hp',
         'alamat',
         'password',
-        'role'
+        'role',
+        'title',
     ];
 
     /**

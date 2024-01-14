@@ -59,6 +59,7 @@ class AuthController extends Controller
                 'alamat' => $request->alamat,
                 'role' => 'pengguna',
                 'password' => Hash::make($request->password),
+                'title' => $request->title,
             ]);
             return response()->json([
                 'status' => true,
@@ -120,12 +121,13 @@ class AuthController extends Controller
     {
         try {
             $user = $request->user();
-            $data = $user->update([
+            $user->update([
                 'nama' => $request->nama,
                 'email' => $request->email,
                 'hp' => $request->hp,
                 'alamat' => $request->alamat
             ]);
+            $data = new UserResource(User::findOrFail($request->user()->id));
             return response()->json([
                 'status' => true,
                 'data' => $data,
