@@ -56,10 +56,9 @@ class AuthController extends Controller
                 'nama' => $request->nama,
                 'email' => $request->email,
                 'hp' => $request->hp,
-                'alamat' => $request->alamat,
+                'title' => $request->title,
                 'role' => 'pengguna',
                 'password' => Hash::make($request->password),
-                'title' => $request->title,
             ]);
             return response()->json([
                 'status' => true,

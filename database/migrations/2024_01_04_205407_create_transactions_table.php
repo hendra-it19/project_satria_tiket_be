@@ -20,7 +20,7 @@ return new class extends Migration
             $table->float('harga');
             $table->float('total_harga');
             $table->enum('status', ['pending', 'proses', 'selesai'])->default('pending');
-            $table->string('snap_token')->nullable();
+            $table->enum('metode_pembayaran',['gopay','qris'])->nullable();
             $table->timestamps();
         });
     }

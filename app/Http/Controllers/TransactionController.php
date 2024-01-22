@@ -17,7 +17,8 @@ class TransactionController extends Controller
     {
         $judulHalaman = $this->judulHalaman;
         $data = Transaction::orderBy('id', 'DESC')->get();
-        return view('transactions.index', compact('data', 'judulHalaman'));
+        $no=1;
+        return view('transactions.index', compact('data', 'judulHalaman','no'));
     }
 
     /**
@@ -41,7 +42,8 @@ class TransactionController extends Controller
      */
     public function show(Transaction $transaction)
     {
-        //
+        $judulHalaman = $this->judulHalaman;
+        return view('transactions.show',compact('judulHalaman','transaction'));
     }
 
     /**
@@ -65,6 +67,8 @@ class TransactionController extends Controller
      */
     public function destroy(Transaction $transaction)
     {
-        //
+        $transaction->delete();
+        return redirect()->route('transactions.index')
+        ->with('success','Data Transaksi berhasil dihapus!');
     }
 }

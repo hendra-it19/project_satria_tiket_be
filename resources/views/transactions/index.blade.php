@@ -26,7 +26,7 @@
 
             <table class="table" id="table" data-page-length='10'>
                 <thead>
-                    <th>No</th>
+                    <th>ID Transaksi</th>
                     <th>Nama Pembeli</th>
                     <th>Email</th>
                     <th>Harga</th>
@@ -39,7 +39,7 @@
                 <tbody>
                     @foreach ($data as $row)
                         <tr>
-                            <td>{{ $no++ }}</td>
+                            <td>{{ $row->transaction_id }}</td>
                             <td>{{ $row->user->nama }}</td>
                             <td>{{ $row->user->email }}</td>
                             <td>{{ $row->harga }}</td>
@@ -51,10 +51,10 @@
                                 <a href="{{ route('transactions.show', $row->id) }}" class="btn btn-sm d-inline">
                                     <i class="fas fa-eye text-primary"></i>
                                 </a>
-                                <a href="{{ route('transactions.edit', $row->id) }}" class="btn btn-sm d-inline">
+                                {{-- <a href="{{ route('transactions.edit', $row->id) }}" class="btn btn-sm d-inline">
                                     <i class="fas fa-pen text-warning"></i>
-                                </a>
-                                <form action="{{ route('transactions.destroy', $row->id) }}" method="post"
+                                </a> --}}
+                                {{-- <form action="{{ route('transactions.destroy', $row->id) }}" method="post"
                                     class="d-inline">
                                     @csrf
                                     @method('delete')
@@ -62,7 +62,7 @@
                                         onclick="return confirm('Yakin ingin menghapus data transaksi?')">
                                         <i class="fas fa-trash text-danger"></i>
                                     </button>
-                                </form>
+                                </form> --}}
                             </td>
                         </tr>
                     @endforeach
