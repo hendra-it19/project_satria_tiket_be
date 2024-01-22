@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ship;
+use App\Models\Ticket;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +16,50 @@ class AuthController extends Controller
     public function dashboard(): View
     {
         $judulHalaman = 'Dashboard';
-        return view('dashboard', compact('judulHalaman'));
+        $user = User::count();
+        $transaksi = Transaction::count();
+        $tiket = Ticket::count();
+        $kapal = Ship::count();
+        return view('dashboard', compact('judulHalaman', 'user', 'transaksi', 'tiket', 'kapal'));
+    }
+
+    public function profile(): View
+    {
+        $judulHalaman = 'Dashboard';
+        return view('auth.profile', compact('judulHalaman'));
+    }
+
+    public function postProfile(Request $request)
+    {
+        $request->validate([
+            'nama' => ['required'],
+            'email' => ['required', 'email', $request->email == auth()->user()->email ? '' : 'unique:users,email,except,id'],
+            'no_hp' => ['required'],
+            'alamat' => ['required'],
+            'password' => ['nullable'],
+            'konfirmasi_password' => ['same:password'],
+        ]);
+
+        $user = User::findOrFail(auth()->user()->id);
+        if (empty($request->password)) {
+            $user->update([
+                'nama' => $request->nama,
+                'email' => $request->email,
+                'hp' => $request->no_hp,
+                'alamat' => $request->alamat,
+            ]);
+        } else {
+            $user->update([
+                'nama' => $request->nama,
+                'email' => $request->email,
+                'hp' => $request->no_hp,
+                'alamat' => $request->alamat,
+                'password' => Hash::make($request->password),
+            ]);
+        }
+
+        return redirect('/profile')
+            ->with('success', 'Profile berhasil diperbarui!');
     }
 
     public function login(): View

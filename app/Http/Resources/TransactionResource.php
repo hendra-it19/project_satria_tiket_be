@@ -26,6 +26,7 @@ class TransactionResource extends JsonResource
             'total_harga' => $this->total_harga,
             'tanggal' => Carbon::parse($this->created_at)->format('d M Y'),
             'status' => $this->status,
+            'metode_pembayaran' => $this->metode_pembayaran,
         ];
     }
 }
