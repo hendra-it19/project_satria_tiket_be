@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('transactions', TransactionController::class)->only([
         'index',
         'show',
-        'destroy',
     ]);
+    Route::put('/transactions/claim/{id}', [TransactionController::class, 'claim'])->name('transactions.claim');
+    Route::put('/transactions/bayar/{id}', [TransactionController::class, 'bayar'])->name('transactions.bayar');
 });

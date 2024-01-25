@@ -26,8 +26,9 @@ Route::get('/ticket/{destination}', [TicketController::class, 'filterDestination
 Route::get('/ticket/detail/{id}', [TicketController::class, 'detail']);
 
 Route::get('/payment-callback', [TransactionController::class, 'callback']);
+Route::post('/payment/notification/post', [TransactionController::class, 'notification']);
 
-Route::get('/status/{id}', [TransactionController::class,'tes']);
+Route::get('/status/{id}', [TransactionController::class, 'tes']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -37,6 +38,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/transaction', [TransactionController::class, 'transaction']);
     Route::get('/transaction', [TransactionController::class, 'transactionList']);
     Route::get('/transaction/{status}', [TransactionController::class, 'listByStatus']);
-
-    Route::post('/payment', [TransactionController::class, 'payment']);
 });

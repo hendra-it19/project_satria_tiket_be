@@ -6,7 +6,6 @@
 
         <div class="col-12 d-flex justify-content-between align-items-center my-5">
             <h3 class="text-primary">Daftar Transaksi</h3>
-            {{-- <a href="{{ route('transactions.create') }}" class="btn btn-outline-primary">Tambah Tiket Kapal</a> --}}
         </div>
 
 
@@ -32,8 +31,7 @@
                     <th>Harga</th>
                     <th>Jumlah</th>
                     <th>Total Harga</th>
-                    <th>status</th>
-                    <th>Transaksi terakhir</th>
+                    <th>Keberangkatan</th>
                     <th>Aksi</th>
                 </thead>
                 <tbody>
@@ -45,24 +43,53 @@
                             <td>{{ $row->harga }}</td>
                             <td>{{ $row->jumlah }}</td>
                             <td>{{ $row->total_harga }}</td>
-                            <td>{{ $row->status }}</td>
-                            <td>{{ $carbon::parse($row->updated_at)->diffForHumans() }}</td>
+                            <td>{{ $carbon::parse($row->ticket->keberangkatan)->diffForHumans() }}</td>
                             <td>
-                                <a href="{{ route('transactions.show', $row->id) }}" class="btn btn-sm d-inline">
+                                <a href="{{ route('transactions.show', $row->id) }}" class="btn btn-sm d-block">
                                     <i class="fas fa-eye text-primary"></i>
                                 </a>
                                 {{-- <a href="{{ route('transactions.edit', $row->id) }}" class="btn btn-sm d-inline">
                                     <i class="fas fa-pen text-warning"></i>
                                 </a> --}}
-                                {{-- <form action="{{ route('transactions.destroy', $row->id) }}" method="post"
-                                    class="d-inline">
-                                    @csrf
-                                    @method('delete')
-                                    <button class="btn btn-sm d-inline"
-                                        onclick="return confirm('Yakin ingin menghapus data transaksi?')">
-                                        <i class="fas fa-trash text-danger"></i>
+
+                                @if ($row->status == 'pending' && $carbon::now() < $carbon::parse($row->ticket->keberangkatan))
+                                    <form action="{{ route('transactions.bayar', $row->id) }}" method="post"
+                                        class="d-block">
+                                        @csrf
+                                        @method('put')
+                                        <button class="btn btn-sm d-block btn-primary"
+                                            onclick="return confirm('Yakin ingin konfirmasi pembayaran langsung?')">
+                                            Bayar
+                                        </button>
+                                    </form>
+                                @elseif ($row->status == 'pending' && $carbon::now() >= $carbon::parse($row->ticket->keberangkatan))
+                                    <button class="btn btn-sm d-block btn-danger" disabled>
+                                        Bayar
                                     </button>
-                                </form> --}}
+                                @elseif ($row->status == 'proses' && $carbon::now() < $carbon::parse($row->ticket->keberangkatan))
+                                    <form action="{{ route('transactions.claim', $row->id) }}" method="post"
+                                        class="d-block">
+                                        @csrf
+                                        @method('put')
+                                        <button class="btn btn-sm d-block btn-primary"
+                                            onclick="return confirm('Yakin ingin melakukan claim tiket?')">
+                                            Claim
+                                        </button>
+                                    </form>
+                                @elseif ($row->status == 'proses' && $carbon::now() >= $carbon::parse($row->ticket->keberangkatan))
+                                    <button class="btn btn-sm d-block btn-danger" disabled>
+                                        Claim
+                                    </button>
+                                @elseif ($row->status == 'selesai' && $carbon::now() < $carbon::parse($row->ticket->keberangkatan))
+                                    <button class="btn btn-sm d-block btn-outline-primaryy" disabled>
+                                        Proses
+                                    </button>
+                                @elseif ($row->status == 'selesai' && $carbon::now() >= $carbon::parse($row->ticket->keberangkatan))
+                                    <button class="btn btn-sm d-block btn-outline-primary" disabled>
+                                        Berangkat
+                                    </button>
+                                @endif
+
                             </td>
                         </tr>
                     @endforeach

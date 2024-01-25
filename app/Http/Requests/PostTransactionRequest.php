@@ -22,8 +22,9 @@ class PostTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'ticket_id' => ['required','exists:tickets,id'],
-            'jumlah' => ['required','numeric'],
+            'ticket_id' => ['required', 'exists:tickets,id'],
+            'jumlah' => ['required', 'numeric'],
+            'metode_pembayaran' => ['required', 'in:gopay,qris'],
         ];
     }
 }

@@ -16,9 +16,9 @@ class TransactionController extends Controller
     public function index()
     {
         $judulHalaman = $this->judulHalaman;
-        $data = Transaction::orderBy('id', 'DESC')->get();
-        $no=1;
-        return view('transactions.index', compact('data', 'judulHalaman','no'));
+        $data = Transaction::with('ticket')->orderBy('id', 'DESC')->get();
+        $no = 1;
+        return view('transactions.index', compact('data', 'judulHalaman', 'no'));
     }
 
     /**
@@ -43,7 +43,7 @@ class TransactionController extends Controller
     public function show(Transaction $transaction)
     {
         $judulHalaman = $this->judulHalaman;
-        return view('transactions.show',compact('judulHalaman','transaction'));
+        return view('transactions.show', compact('judulHalaman', 'transaction'));
     }
 
     /**
@@ -59,7 +59,11 @@ class TransactionController extends Controller
      */
     public function update(Request $request, Transaction $transaction)
     {
-        //
+        $transaction->update([
+            'selesai',
+        ]);
+        return redirect()->route('transactions.index')
+            ->with('success', 'Tiket telah di klaim!');
     }
 
     /**
@@ -69,6 +73,26 @@ class TransactionController extends Controller
     {
         $transaction->delete();
         return redirect()->route('transactions.index')
-        ->with('success','Data Transaksi berhasil dihapus!');
+            ->with('success', 'Data Transaksi berhasil dihapus!');
+    }
+
+    public function claim($id)
+    {
+        $transaction = Transaction::findOrFail($id);
+        $transaction->update([
+            'status' => 'selesai'
+        ]);
+        return redirect()->route('transactions.index')
+            ->with('success', 'Berhasil melakukan klaim tiket!');
+    }
+
+    public function bayar($id)
+    {
+        $transaction = Transaction::findOrFail($id);
+        $transaction->update([
+            'status' => 'proses',
+        ]);
+        return redirect()->route('transactions.index')
+            ->with('success', 'Berhasil melakukan konfirmasi pembayaran offline!');
     }
 }

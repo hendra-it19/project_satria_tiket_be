@@ -85,7 +85,7 @@
         $(document).ready(function() {
             $.extend($.fn.dataTable.defaults, {
                 searching: true,
-                ordering: true
+                ordering: false,
             });
             $('#table').DataTable({
                 dom: 'Bfrtip',

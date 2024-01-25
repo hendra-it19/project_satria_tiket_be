@@ -11,6 +11,7 @@ use App\Models\Ticket;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -25,76 +26,50 @@ class TransactionController extends Controller
         \Midtrans\Config::$is3ds        = config('services.midtrans.is3ds');
     }
 
-    public function payment(PaymentRequest $request)
+    public function notification(Request $req)
     {
-        try{
-            $transaction = Transaction::where('transaction_id',$request->transaction_id)->first();
-            $transaction->update([
-                'status' => 'proses',
-                'metode_pembayaran' => $request->metode_pembayaran,
-            ]);
-            $param = array(
-                'transaction_details' => array(
-                    'order_id' => $transaction->transaction_id,
-                    'gross_amount' => $transaction->total_harga,
-                ),
-                'customer_details' => array(
-                    'first_name' => $request->user()->nama,
-                    'email' => $request->user()->email,
-                ),
-                'item_details' => array(
-                    [
-                        'id'            => $transaction->ticket_id,
-                        'price'         => $transaction->harga,
-                        'quantity'      => $transaction->jumlah,
-                        'name'          => 'Tiket tujuan : '. $transaction->ticket->tujuan.'',
-                        'brand'         => 'KM. Satria',
-                        'category'      => 'Tiket Transportasi Laut',
-                        'merchant_name' => config('app.name'),
-                    ],
-                ),
-                'payment_type' => $request->metode_pembayaran,
-                // $request->metode_pembayaran => array(
-                //     'enable_callback' => true,
-                //     'callback_url' => env('APP_URL') . '/api/payment-callback',
-                // ),
-            );
-            $response = \Midtrans\CoreApi::charge($param);
-            return response()->json([
-                'status' => true,
-                'data' => [
-                    'transaksi' => new TransactionResource(Transaction::findOrFail($transaction->id)),
-                    'pembayaran' => $response,
-                ],
-                'errors' => null,
-                'message' => 'Proses pengajuan pembayaran berhasil dilakukan!',
-            ],200);
-        }catch(Exception $e){
-            return response()->json([
-                'status' => false,
-                'data' => null,
-                'errors' => $e->getMessage(),
-                'message' => 'Terdapat kesalahan pada Api/TransactionController.payment',
-            ], 500);
+        try {
+            $notification_body = json_decode($req->getContent(), true);
+            $invoice = $notification_body['order_id'];
+            $transaction_id = $notification_body['transaction_id'];
+            $status_code = $notification_body['status_code'];
+            $order = Transaction::where('transaction_id', $invoice)->first();
+            if (!$order)
+                return ['code' => 0, 'messgae' => 'Terjadi kesalahan | Pembayaran tidak valid'];
+            switch ($status_code) {
+                case '200':
+                    $order->status = "proses";
+                    break;
+                case '201':
+                    $order->status = "pending";
+                    break;
+                case '202':
+                    $order->status = "selesai";
+                    break;
+            }
+            $order->save();
+            return response('Ok', 200)->header('Content-Type', 'text/plain');
+        } catch (\Exception $e) {
+            return response('Error', 404)->header('Content-Type', 'text/plain');
         }
     }
 
-    public function callback(Request $request) : JsonResponse
+    public function callback(Request $request): JsonResponse
     {
-        try{
+        try {
             $transaction_id = $request->order_id;
             $transaction_status = $request->result;
             $transaction = Transaction::where('transaction_id', $transaction_id)->first();
             $transaction->update([
-                'status' => 'selesai',
+                'status' => 'proses',
             ]);
             return response()->json([
                 'status' => true,
                 'data' => new TransactionResource(Transaction::findOrFail($transaction->id)),
                 'errors' => null,
                 'message' => 'Berhasil melakukan pembayaran!',
-            ],200);
-        }catch(Exception $e){
+            ], 200);
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'data' => null,
@@ -119,11 +94,48 @@ class TransactionController extends Controller
                 'harga' => $harga,
                 'total_harga' => $total_harga,
                 'status' => 'pending',
+                'metode_pembayaran' => $request->metode_pembayaran,
             ]);
-            $data = Transaction::latest('id')->first();
+            $transaction = Transaction::latest('id')->first();
+            $param = array(
+                'transaction_details' => array(
+                    'order_id' => $transaction->transaction_id,
+                    'gross_amount' => $transaction->total_harga,
+                ),
+                'customer_details' => array(
+                    'first_name' => $request->user()->nama,
+                    'email' => $request->user()->email,
+                ),
+                'item_details' => array(
+                    [
+                        'id'            => $transaction->ticket_id,
+                        'price'         => $transaction->harga,
+                        'quantity'      => $transaction->jumlah,
+                        'name'          => 'Tiket tujuan : ' . $transaction->ticket->tujuan . '',
+                        'brand'         => 'KM. Satria',
+                        'category'      => 'Tiket Transportasi Laut',
+                        'merchant_name' => config('app.name'),
+                    ],
+                ),
+                'payment_type' => $request->metode_pembayaran,
+                // $request->metode_pembayaran => array(
+                //     'enable_callback' => true,
+                //     'callback_url' => env('APP_URL') . '/api/payment-callback',
+                // ),
+            );
+            $response = \Midtrans\CoreApi::charge($param);
+            $url = $response->actions[0]->url;
+            $expiry_time = $response->expiry_time;
+            $transaction->update([
+                'expired' => $expiry_time,
+                'qr_url' => $url,
+            ]);
+            $ticket->update([
+                'sisa_stok' => intval($ticket->stok) - $request->jumlah,
+            ]);
             return response()->json([
                 'status' => true,
-                'data' => $data,
+                'data' => new TransactionResource($transaction),
                 'errors' => null,
                 'message' => 'Transaksi berhasil, silahkan lakukan pembayaran!',
             ], 201);
@@ -161,9 +173,28 @@ class TransactionController extends Controller
     public function listByStatus(Request $request, $status): JsonResponse
     {
         try {
-            $data = Transaction::with('ticket')->where('user_id', $request->user()->id)
-                ->where('status', $status)
-                ->get();
+            if ($status == 'berangkat') {
+                $data = Transaction::with('ticket')
+                    ->where('user_id', $request->user()->id)
+                    ->where('status', 'selesai')
+                    ->whereHas('ticket', function (Builder $query) {
+                        $query->whereDate('keberangkatan', '<=', Carbon::now())
+                            ->whereTime('keberangkatan', '<=', Carbon::now());
+                    })->orderBy('id', 'DESC')->get();
+            } else if ($status == 'selesai') {
+                $data = Transaction::with('ticket')
+                    ->where('user_id', $request->user()->id)
+                    ->where('status', 'selesai')
+                    ->whereHas('ticket', function (Builder $query) {
+                        $query->whereDate('keberangkatan', '>=', Carbon::now())
+                            ->whereTime('keberangkatan', '>=', Carbon::now());
+                    })->orderBy('id', 'DESC')->get();
+            } else {
+                $data = Transaction::with('ticket')->where('user_id', $request->user()->id)
+                    ->where('status', $status)
+                    ->orderBy('id', 'DESC')
+                    ->get();
+            }
             $data = new TransactionCollection($data);
             return response()->json([
                 'status' => true,
@@ -181,18 +212,18 @@ class TransactionController extends Controller
         }
     }
 
-    public function tes($id){
-        try{
+    public function tes($id)
+    {
+        try {
             $client = new \GuzzleHttp\Client();
-            $auth = 'Basic U0ItTWlkLXNlcnZlci1FRFJHLXZ3dDBmRTN3X21Gb0c4NHZLSm46';
-            $response = $client->request('GET', 'https://api.sandbox.midtrans.com/v2/'.$id.'/status', [
+            $response = $client->request('GET', env('MIDTRANS_URL') . $id . '/status', [
                 'headers' => [
                     'accept' => 'application/json',
                     'authorization' => 'Basic U0ItTWlkLXNlcnZlci1FRFJHLXZ3dDBmRTN3X21Gb0c4NHZLSm46',
                 ],
             ]);
             return $data = $response->getBody();
-        }catch(Exception $e){
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'data' => null,

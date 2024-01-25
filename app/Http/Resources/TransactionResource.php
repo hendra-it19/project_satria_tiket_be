@@ -15,6 +15,19 @@ class TransactionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
+        if ($this->expired != null) {
+            $exp = Carbon::now() > Carbon::parse($this->expired) ? true : false;
+        } else {
+            $exp = null;
+        }
+
+        if ($this->status ==  'selesai' && Carbon::parse($this->ticket->keberangkatan) <= Carbon::now()) {
+            $status = 'berangkat';
+        } else {
+            $status = $this->status;
+        }
+
         return [
             'id' => $this->id,
             'ticket' => new TicketResource($this->ticket),
@@ -25,8 +38,10 @@ class TransactionResource extends JsonResource
             'harga' => $this->harga,
             'total_harga' => $this->total_harga,
             'tanggal' => Carbon::parse($this->created_at)->format('d M Y'),
-            'status' => $this->status,
+            'status' => $status,
             'metode_pembayaran' => $this->metode_pembayaran,
+            'qr_url' => $this->qr_url,
+            'expired' => $exp,
         ];
     }
 }

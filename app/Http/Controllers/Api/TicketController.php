@@ -40,8 +40,7 @@ class TicketController extends Controller
     {
         try {
             $data = Ticket::where('tujuan', $destination)
-                ->whereDate('keberangkatan', '>=', Carbon::now())
-                ->whereTime('keberangkatan', '>=', Carbon::now())
+                ->orderBy('keberangkatan', 'DESC')
                 ->get();
             $data = new TicketCollection($data);
             return response()->json([
