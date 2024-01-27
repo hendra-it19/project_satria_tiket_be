@@ -170,6 +170,27 @@ class TransactionController extends Controller
         }
     }
 
+    public function transactionDetail($id)
+    {
+        try {
+            $data = Transaction::with('ticket', 'user')->where('transaction_id', $id)->first();
+            $data = new TransactionResource($data);
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'errors' => null,
+                'message' => 'Detail transaksi berhasil ditampilkan!',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'data' => null,
+                'errors' => $e->getMessage(),
+                'message' => 'Terdapat kesalahan pada Api/TransactionController.transactionDetail',
+            ], 500);
+        }
+    }
+
     public function listByStatus(Request $request, $status): JsonResponse
     {
         try {

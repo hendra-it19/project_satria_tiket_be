@@ -17,9 +17,9 @@ class TransactionResource extends JsonResource
     {
 
         if ($this->expired != null) {
-            $exp = Carbon::now() > Carbon::parse($this->expired) ? true : false;
+            $exp = Carbon::now() >= Carbon::parse($this->expired) ? true : false;
         } else {
-            $exp = null;
+            $exp = false;
         }
 
         if ($this->status ==  'selesai' && Carbon::parse($this->ticket->keberangkatan) <= Carbon::now()) {
@@ -31,6 +31,7 @@ class TransactionResource extends JsonResource
         return [
             'id' => $this->id,
             'ticket' => new TicketResource($this->ticket),
+            'user' => new UserResource($this->user),
             'transaction_id' => $this->transaction_id,
             'nama_kapal' => $this->ticket->ship->nama_kapal,
             'tujuan' => $this->ticket->tujuan,
