@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\KursiPenumpang;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -30,7 +31,8 @@ class TransactionResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'ticket' => new TicketResource($this->ticket),
+            'kursi' => $this->kursi,
+            'penumpang' => $this->penumpang,
             'user' => new UserResource($this->user),
             'transaction_id' => $this->transaction_id,
             'nama_kapal' => $this->ticket->ship->nama_kapal,
@@ -43,6 +45,7 @@ class TransactionResource extends JsonResource
             'metode_pembayaran' => $this->metode_pembayaran,
             'qr_url' => $this->qr_url,
             'expired' => $exp,
+            'ticket' => new TicketResource($this->ticket),
         ];
     }
 }

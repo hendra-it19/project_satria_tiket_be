@@ -24,4 +24,9 @@ class Ticket extends Model
     {
         return $this->hasMany(Transaction::class, 'ticket_id', 'id');
     }
+
+    public function kursi(): HasMany
+    {
+        return $this->hasMany(KursiPenumpang::class, 'ticket_id', 'id');
+    }
 }

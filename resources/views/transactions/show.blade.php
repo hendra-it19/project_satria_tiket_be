@@ -26,6 +26,27 @@
                         <td>Alamat</td>
                         <td>: {{ $transaction->user->alamat }}</td>
                     </tr>
+                    <tr>
+                        <td>Metode Pembayaran</td>
+                        <td>: {{ $transaction->metode_pembayaran }} | {{ $transaction->qr_url }} |
+                            {{ $carbon::parse($transaction->expired)->diffForHumans() }}</td>
+                    </tr>
+                    <tr>
+                        <td>Nomor Kursi</td>
+                        <td>:
+                            @foreach ($kursi as $row)
+                                | {{ $row->nomor_kursi }} |
+                            @endforeach
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Penumpang</td>
+                        <td>:
+                            @foreach ($penumpang as $row)
+                                | {{ $row->title }}.{{ $row->nama }}({{ $row->usia }}) |
+                            @endforeach
+                        </td>
+                    </tr>
                 </table>
             </div>
             <h4>Transaksi</h4>
@@ -39,12 +60,13 @@
                     <th>Total Harga</th>
                 </thead>
                 <tbody>
-                    <tr><td>{{ $transaction->transaction_id }}</td>
+                    <tr>
+                        <td>{{ $transaction->transaction_id }}</td>
                         <td>{{ $transaction->ticket->tujuan }}</td>
                         <td>{{ $transaction->ticket->keberangkatan }}</td>
-                        <td>{{ $number->currency($transaction->harga, 'IDR','ID') }}</td>
+                        <td>{{ $number->currency($transaction->harga, 'IDR', 'ID') }}</td>
                         <td>{{ $transaction->jumlah }}</td>
-                        <td>{{ $number->currency($transaction->total_harga, 'IDR','ID') }}</td>
+                        <td>{{ $number->currency($transaction->total_harga, 'IDR', 'ID') }}</td>
                     </tr>
                 </tbody>
             </table>

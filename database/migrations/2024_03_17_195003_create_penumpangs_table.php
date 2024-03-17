@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ships', function (Blueprint $table) {
+        Schema::create('penumpangs', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_kapal', 100);
-            $table->integer('kapasitas_penumpang');
-            $table->float('panjang_kapal');
-            $table->float('lebar_kapal');
-            $table->year('tahun_produksi');
+            $table->foreignId('transaction_id')->nullable()->references('id')->on('transactions')->cascadeOnDelete();
+            $table->string('nama')->nullable();
+            $table->string('title')->nullable();
+            $table->string('usia')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ships');
+        Schema::dropIfExists('penumpangs');
     }
 };

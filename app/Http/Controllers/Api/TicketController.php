@@ -41,7 +41,6 @@ class TicketController extends Controller
         try {
             $data = Ticket::where('tujuan', $destination)
                 ->whereDate('keberangkatan', '>=', Carbon::now())
-                ->whereTime('keberangkatan', '>=', Carbon::now())
                 ->orderBy('keberangkatan', 'DESC')
                 ->get();
             $data = new TicketCollection($data);
@@ -64,7 +63,7 @@ class TicketController extends Controller
     public function detail($id): JsonResponse
     {
         try {
-            $data = Ticket::findOrFail($id);
+            $data = Ticket::with('kursi')->find($id);
             $data = new TicketResource($data);
             return response()->json([
                 'status' => true,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KursiPenumpang;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 
@@ -43,7 +44,9 @@ class TransactionController extends Controller
     public function show(Transaction $transaction)
     {
         $judulHalaman = $this->judulHalaman;
-        return view('transactions.show', compact('judulHalaman', 'transaction'));
+        $kursi = $transaction->kursi;
+        $penumpang = $transaction->penumpang;
+        return view('transactions.show', compact('judulHalaman', 'transaction', 'kursi', 'penumpang'));
     }
 
     /**

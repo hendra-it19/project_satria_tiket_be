@@ -20,9 +20,10 @@ return new class extends Migration
             $table->float('harga');
             $table->float('total_harga');
             $table->enum('status', ['pending', 'proses', 'selesai'])->default('pending');
-            $table->enum('metode_pembayaran', ['gopay', 'qris'])->nullable();
+            $table->enum('metode_pembayaran', ['gopay', 'qris', 'bni'])->nullable();
             $table->string('qr_url')->nullable();
             $table->dateTime('expired')->nullable();
+            $table->text('penumpang')->nullable();
             $table->timestamps();
         });
     }

@@ -44,6 +44,7 @@ class TicketResource extends JsonResource
             'waktu_rilis_tiket' => $this->created_at,
             'keterangan' => Carbon::parse($this->keberangkatan)->diffForHumans(),
             'status' => (Carbon::now()->between($start, $end, true)) ? true : false,
+            'kursi' => $this->kursi,
         ];
     }
 }

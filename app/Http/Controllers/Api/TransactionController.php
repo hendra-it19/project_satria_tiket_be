@@ -7,6 +7,8 @@ use App\Http\Requests\PaymentRequest;
 use App\Http\Requests\PostTransactionRequest;
 use App\Http\Resources\TransactionCollection;
 use App\Http\Resources\TransactionResource;
+use App\Models\KursiPenumpang;
+use App\Models\Penumpang;
 use App\Models\Ticket;
 use App\Models\Transaction;
 use Carbon\Carbon;
@@ -96,35 +98,89 @@ class TransactionController extends Controller
                 'status' => 'pending',
                 'metode_pembayaran' => $request->metode_pembayaran,
             ]);
+
             $transaction = Transaction::latest('id')->first();
-            $param = array(
-                'transaction_details' => array(
-                    'order_id' => $transaction->transaction_id,
-                    'gross_amount' => $transaction->total_harga,
-                ),
-                'customer_details' => array(
-                    'first_name' => $request->user()->nama,
-                    'email' => $request->user()->email,
-                ),
-                'item_details' => array(
-                    [
-                        'id'            => $transaction->ticket_id,
-                        'price'         => $transaction->harga,
-                        'quantity'      => $transaction->jumlah,
-                        'name'          => 'Tiket tujuan : ' . $transaction->ticket->tujuan . '',
-                        'brand'         => 'KM. Satria',
-                        'category'      => 'Tiket Transportasi Laut',
-                        'merchant_name' => config('app.name'),
-                    ],
-                ),
-                'payment_type' => $request->metode_pembayaran,
-                // $request->metode_pembayaran => array(
-                //     'enable_callback' => true,
-                //     'callback_url' => env('APP_URL') . '/api/payment-callback',
-                // ),
-            );
+
+            $penumpang = $request->penumpang;
+            foreach ($penumpang as $row) {
+                Penumpang::create([
+                    'transaction_id' => $transaction->id,
+                    'nama' => $row->name,
+                    'title' => $row->title,
+                    'usia' => $row->usia,
+                ]);
+            }
+
+            foreach ($request->kursi as $key => $value) {
+                $data = KursiPenumpang::where('ticket_id', $ticket->id)
+                    ->where('nomor_kursi', $value)->first();
+                $data->update([
+                    'user_id' => $request->user()->id,
+                    'transaction_id' => $transaction->id,
+                    'status' => false,
+                ]);
+            }
+
+            if ($request->metode_pembayaran == 'bni') {
+                $param = array(
+                    'transaction_details' => array(
+                        'order_id' => $transaction->transaction_id,
+                        'gross_amount' => $transaction->total_harga,
+                    ),
+                    'customer_details' => array(
+                        'first_name' => $request->user()->nama,
+                        'email' => $request->user()->email,
+                    ),
+                    'item_details' => array(
+                        [
+                            'id'            => $transaction->ticket_id,
+                            'price'         => $transaction->harga,
+                            'quantity'      => $transaction->jumlah,
+                            'name'          => 'Tiket tujuan : ' . $transaction->ticket->tujuan . '',
+                            'brand'         => 'KM. Satria',
+                            'category'      => 'Tiket Transportasi Laut',
+                            'merchant_name' => config('app.name'),
+                        ],
+                    ),
+                    'payment_type' => 'bank_transfer',
+                    'bank_transfer' => array(
+                        'bank' => "bni",
+                    ),
+                );
+            } else {
+                $param = array(
+                    'transaction_details' => array(
+                        'order_id' => $transaction->transaction_id,
+                        'gross_amount' => $transaction->total_harga,
+                    ),
+                    'customer_details' => array(
+                        'first_name' => $request->user()->nama,
+                        'email' => $request->user()->email,
+                    ),
+                    'item_details' => array(
+                        [
+                            'id'            => $transaction->ticket_id,
+                            'price'         => $transaction->harga,
+                            'quantity'      => $transaction->jumlah,
+                            'name'          => 'Tiket tujuan : ' . $transaction->ticket->tujuan . '',
+                            'brand'         => 'KM. Satria',
+                            'category'      => 'Tiket Transportasi Laut',
+                            'merchant_name' => config('app.name'),
+                        ],
+                    ),
+                    'payment_type' => $request->metode_pembayaran,
+                    // $request->metode_pembayaran => array(
+                    //     'enable_callback' => true,
+                    //     'callback_url' => env('APP_URL') . '/api/payment-callback',
+                    // ),
+                );
+            }
             $response = \Midtrans\CoreApi::charge($param);
-            $url = $response->actions[0]->url;
+            if ($request->metode_pembayaran == 'bni') {
+                $url = $response->va_numbers[0]->va_number;
+            } else {
+                $url = $response->actions[0]->url;
+            }
             $expiry_time = $response->expiry_time;
             $transaction->update([
                 'expired' => $expiry_time,
@@ -133,6 +189,7 @@ class TransactionController extends Controller
             $ticket->update([
                 'sisa_stok' => intval($ticket->stok) - $request->jumlah,
             ]);
+
             return response()->json([
                 'status' => true,
                 'data' => new TransactionResource($transaction),

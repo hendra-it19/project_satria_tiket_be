@@ -43,7 +43,6 @@
                         <td>Waktu keberangkatan</td>
                         <td>: {{ $carbon::parse($ticket->keberangkatan)->diffForHumans() }}</td>
                     </tr>
-
                 </tbody>
             </table>
         </div>
@@ -52,7 +51,7 @@
 
         <div class="col-12 rounded">
 
-            <table class="table" id="table" data-page-length='10'>
+            <table class="table" id="table">
                 <thead>
                     <th>No</th>
                     <th>Nama Pembeli</th>
@@ -70,13 +69,12 @@
                             <td>{{ $row->jumlah }}</td>
                             <td>{{ $row->total_harga }}</td>
                             <td>{{ $row->status }}</td>
-                            <td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
             <div>
-                <a href="{{route('tickets.index')}}" class="btn btn-outline-danger">Kembali</a>
+                <a href="{{ route('tickets.index') }}" class="btn btn-outline-danger">Kembali</a>
             </div>
         </div>
     </div>

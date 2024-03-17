@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KursiPenumpang;
 use App\Models\Ship;
 use App\Models\Ticket;
 use App\Models\Transaction;
@@ -18,6 +19,7 @@ class TicketController extends Controller
         'wanci-lasalimu',
         'lasalimu-wanci',
     ];
+    private $jumlahKursi = 74;
 
     public function index()
     {
@@ -35,7 +37,8 @@ class TicketController extends Controller
         $judulHalaman = $this->judulHalaman;
         $kapal = Ship::all();
         $tujuan = $this->tujuan;
-        return view('tickets.create', compact('judulHalaman', 'kapal', 'tujuan'));
+        $jumlahKursi = $this->jumlahKursi * 2;
+        return view('tickets.create', compact('judulHalaman', 'kapal', 'tujuan', 'jumlahKursi'));
     }
 
     /**
@@ -58,6 +61,38 @@ class TicketController extends Controller
             'tujuan' => $request->tujuan,
             'keberangkatan' => $request->keberangkatan,
         ]);
+
+        $ticket = Ticket::latest('id')->first();
+        for ($i = 1; $i <= $this->jumlahKursi; $i++) {
+            if ($i <= 26) {
+                KursiPenumpang::create([
+                    'ticket_id' => $ticket->id,
+                    'nomor_kursi' => $i . 'A',
+                    'tingkat' => 2,
+                    'status' => true,
+                ]);
+                KursiPenumpang::create([
+                    'ticket_id' => $ticket->id,
+                    'nomor_kursi' => $i . 'B',
+                    'tingkat' => 2,
+                    'status' => true,
+                ]);
+            } else {
+                KursiPenumpang::create([
+                    'ticket_id' => $ticket->id,
+                    'nomor_kursi' => $i . 'A',
+                    'tingkat' => 1,
+                    'status' => true,
+                ]);
+                KursiPenumpang::create([
+                    'ticket_id' => $ticket->id,
+                    'nomor_kursi' => $i . 'B',
+                    'tingkat' => 1,
+                    'status' => true,
+                ]);
+            }
+        }
+
         return redirect()->route('tickets.index')
             ->with('success', 'Data tiket berhasil ditambahkan!');
     }
@@ -65,11 +100,13 @@ class TicketController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Ticket $ticket)
+    public function show($id)
     {
+        $ticket = Ticket::find($id);
         $judulHalaman = $this->judulHalaman;
+        $no = 1;
         $transactions = Transaction::where('ticket_id', $ticket->id)->OrderBy('id', 'DESC')->get();
-        return view('tickets.show', compact('judulHalaman', 'transactions', 'ticket'));
+        return view('tickets.show', compact('judulHalaman', 'transactions', 'ticket', 'no'));
     }
 
     /**

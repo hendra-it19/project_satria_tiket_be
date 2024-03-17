@@ -52,7 +52,7 @@
                         class="form-control @error('stok')
                         is-invalid
                     @enderror"
-                        value="{{ old('stok') }}">
+                        value="{{ old('stok', $jumlahKursi) }}">
                     @error('stok')
                         <div class="invalid-feedback">
                             {{ $message }}

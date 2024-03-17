@@ -19,9 +19,9 @@
                     class="nav-item nav-link @if ($judulHalaman == 'Kapal') active @endif"><i
                         class="fa fa-ship me-2"></i>Kapal</a>
 
-                <a href="{{ route('schedules.index') }}"
+                {{-- <a href="{{ route('schedules.index') }}"
                     class="nav-item nav-link @if ($judulHalaman == 'Jadwal') active @endif"><i
-                        class="fas fa-calendar-week me-2"></i>Jadwal</a>
+                        class="fas fa-calendar-week me-2"></i>Jadwal</a> --}}
 
                 <a href="{{ route('tickets.index') }}"
                     class="nav-item nav-link @if ($judulHalaman == 'Tiket') active @endif"><i

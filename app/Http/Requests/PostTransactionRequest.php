@@ -24,7 +24,9 @@ class PostTransactionRequest extends FormRequest
         return [
             'ticket_id' => ['required', 'exists:tickets,id'],
             'jumlah' => ['required', 'numeric'],
-            'metode_pembayaran' => ['required', 'in:gopay,qris'],
+            'metode_pembayaran' => ['required', 'in:gopay,qris,bni'],
+            'kursi' => ['required'],
+            'penumpang' => ['required'],
         ];
     }
 }
