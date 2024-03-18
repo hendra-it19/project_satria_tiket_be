@@ -45,7 +45,7 @@ class TransactionController extends Controller
     {
         $judulHalaman = $this->judulHalaman;
         $kursi = $transaction->kursi;
-        $penumpang = $transaction->penumpang;
+        $penumpang = $transaction->penumpangs;
         return view('transactions.show', compact('judulHalaman', 'transaction', 'kursi', 'penumpang'));
     }
 

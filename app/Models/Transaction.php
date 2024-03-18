@@ -30,7 +30,7 @@ class Transaction extends Model
         return $this->hasMany(KursiPenumpang::class, 'transaction_id', 'id');
     }
 
-    public function penumpang(): HasMany
+    public function penumpangs(): HasMany
     {
         return $this->hasMany(Penumpang::class, 'transaction_id', 'id');
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\KursiPenumpang;
+use App\Models\Penumpang;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -32,7 +33,7 @@ class TransactionResource extends JsonResource
         return [
             'id' => $this->id,
             'kursi' => $this->kursi,
-            'penumpang' => $this->penumpang,
+            'penumpang' => $this->penumpangs,
             'user' => new UserResource($this->user),
             'transaction_id' => $this->transaction_id,
             'nama_kapal' => $this->ticket->ship->nama_kapal,

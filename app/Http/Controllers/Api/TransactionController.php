@@ -56,31 +56,6 @@ class TransactionController extends Controller
         }
     }
 
-    public function callback(Request $request): JsonResponse
-    {
-        try {
-            $transaction_id = $request->order_id;
-            $transaction_status = $request->result;
-            $transaction = Transaction::where('transaction_id', $transaction_id)->first();
-            $transaction->update([
-                'status' => 'proses',
-            ]);
-            return response()->json([
-                'status' => true,
-                'data' => new TransactionResource(Transaction::findOrFail($transaction->id)),
-                'errors' => null,
-                'message' => 'Berhasil melakukan pembayaran!',
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => false,
-                'data' => null,
-                'errors' => $e->getMessage(),
-                'message' => 'Terdapat kesalahan pada Api/TransactionController.callback',
-            ], 500);
-        }
-    }
-
     public function transaction(PostTransactionRequest $request): JsonResponse
     {
         try {
@@ -105,9 +80,9 @@ class TransactionController extends Controller
             foreach ($penumpang as $row) {
                 Penumpang::create([
                     'transaction_id' => $transaction->id,
-                    'nama' => $row->name,
-                    'title' => $row->title,
-                    'usia' => $row->usia,
+                    'nama' => $row['name'],
+                    'title' => $row['title'],
+                    'usia' => $row['usia'],
                 ]);
             }
 
@@ -230,7 +205,7 @@ class TransactionController extends Controller
     public function transactionDetail($id)
     {
         try {
-            $data = Transaction::with('ticket', 'user')->where('transaction_id', $id)->first();
+            $data = Transaction::with('ticket', 'user', 'penumpangs')->where('transaction_id', $id)->first();
             $data = new TransactionResource($data);
             return response()->json([
                 'status' => true,
